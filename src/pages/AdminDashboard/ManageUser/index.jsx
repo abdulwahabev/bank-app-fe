@@ -114,9 +114,9 @@ const ManageUser = () => {
         ...baseColumns,
         { title: 'CNIC', dataIndex: ['kycDetails', 'cnic'], key: 'cnic' },
         { title: 'Initial Deposit', dataIndex: ['kycDetails', 'initialDeposit'], render: (d) => `Rs. ${d}` },
-        { 
-            title: 'Address', 
-            dataIndex: ['kycDetails', 'address'], 
+        {
+            title: 'Address',
+            dataIndex: ['kycDetails', 'address'],
             key: 'address',
             ellipsis: true,
             render: (addr) => <Tooltip title={addr}>{addr}</Tooltip>

@@ -14,7 +14,7 @@ const Application = () => {
     const onFinish = async (values) => {
         setLoading(true);
         try {
-            const response = await axios.post("http://localhost:8000/api/user/submit-kyc", values, {
+            const response = await axios.post("https://bank-app-be-sand.vercel.app/api/user/submit-kyc", values, {
                 headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
             });
 

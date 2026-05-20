@@ -33,7 +33,7 @@ const History = () => {
     const fetchHistory = async () => {
         try {
             const token = localStorage.getItem('token');
-            const res = await axios.get('http://localhost:8000/api/transactions/history', {
+            const res = await axios.get('https://bank-app-be-sand.vercel.app/api/transactions/history', {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setData(res.data.history || []);
@@ -58,7 +58,7 @@ const History = () => {
     const handleDelete = async (id) => {
         try {
             const token = localStorage.getItem('token');
-            const res = await axios.delete(`http://localhost:8000/api/transactions/delete/${id}`, {
+            const res = await axios.delete(`https://bank-app-be-sand.vercel.app/api/transactions/delete/${id}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (res.data.success) {
