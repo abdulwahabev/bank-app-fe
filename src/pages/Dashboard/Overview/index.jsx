@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"; // Fixed: Added useEffect import
+import React, { useState, useEffect } from "react";
 import { Card, Col, Row, Tag, Typography, Button, Progress, Modal } from "antd";
 import {
     SendOutlined, SafetyCertificateOutlined, ThunderboltOutlined, ArrowUpOutlined, EyeOutlined, EyeInvisibleOutlined, WalletOutlined,
@@ -19,14 +19,13 @@ const Overview = () => {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const [showBalance, setShowBalance] = useState(true);
-    const [history, setHistory] = useState([]); // State for real transaction data
+    const [history, setHistory] = useState([]);
 
     // --- FUNCTIONAL LOGIC START ---
     const userData = user?.user || user;
     const currentBalance = userData?.balance ?? 0;
     const currentUserId = userData?._id || userData?.id;
 
-    // 1. Fetch Transactions from API
     useEffect(() => {
         const fetchStats = async () => {
             try {
@@ -37,10 +36,8 @@ const Overview = () => {
             }
         };
         fetchStats();
-    }, [user]); // Re-fetch if user profile updates
+    }, [user]);
 
-    // 2. Monthly Spend Calculation (Based on your Transaction Model)
-    // Filter: Agar user 'sender' hai aur type 'transfer' hai, ya type 'withdraw' hai.
     const monthlySpend = history
         .filter(t => {
             const isSender = (t.sender?._id || t.sender)?.toString() === currentUserId?.toString();
@@ -48,17 +45,11 @@ const Overview = () => {
         })
         .reduce((sum, t) => sum + (t.amount || 0), 0);
 
-    // 3. Savings Calculation (Static 25% of balance for UI purpose)
     const savingsAmount = currentBalance * 0.25;
-
-    // 4. Progress Bar Logic
     const totalCashFlow = currentBalance + monthlySpend;
     const spendProgress = totalCashFlow > 0 ? Math.round((monthlySpend / totalCashFlow) * 100) : 0;
-
-    // 5. Security Level Logic
     const isSecurityHigh = userData?.isVerified || true;
 
-    // --- DEPOSIT FUNCTION ---
     const handleDeposit = async () => {
         if (depositAmount < 1000) {
             return message.error("Minimum deposit is Rs. 1000");
@@ -66,11 +57,10 @@ const Overview = () => {
         setLoading(true);
         try {
             const res = await api.post('/transactions/deposit', { amount: depositAmount });
-
             if (res.data.success) {
                 message.success(res.data.message);
                 setIsDepositOpen(false);
-                await readProfile(); // Refresh Auth State
+                await readProfile();
             }
         } catch (error) {
             message.error(error.response?.data?.message || "Deposit failed");
@@ -80,40 +70,40 @@ const Overview = () => {
     };
 
     return (
-        <div className="p-4 md:p-8 max-w-[1400px] mx-auto space-y-10 animate-in fade-in duration-700 bg-[#fbfcfd]"
+        <div className="p-3 md:p-8 max-w-[1400px] mx-auto space-y-6 md:space-y-10 animate-in fade-in duration-700 bg-[#fbfcfd]"
             style={{ backgroundImage: `radial-gradient(at 80% 10%, hsla(210,100%,96%,1) 0px, transparent 50%),radial-gradient(at 20% 90%, hsla(210,100%,98%,1) 0px, transparent 50%)` }}>
 
             {/* SECTION 1: TOP CARDS */}
-            <Row gutter={[24, 24]}>
+            <Row gutter={[16, 16]}>
                 <Col xs={24} lg={16}>
-                    <div className="relative h-[320px] rounded-[40px] overflow-hidden shadow-2xl transition-transform hover:scale-[1.01] duration-500 cursor-pointer"
+                    <div className="relative min-h-[240px] md:h-[320px] rounded-[24px] md:rounded-[40px] overflow-hidden shadow-2xl transition-transform hover:scale-[1.01] duration-500 cursor-pointer"
                         style={{ background: 'linear-gradient(135deg, #1a1c2c 0%, #4a192c 100%)' }}>
                         <div className="absolute top-[-50px] right-[-50px] w-64 h-64 bg-white/5 rounded-full blur-3xl" />
-                        <div className="relative z-10 p-10 h-full flex flex-col justify-between">
+                        <div className="relative z-10 p-6 md:p-10 h-full flex flex-col justify-between gap-6">
                             <div className="flex justify-between items-start">
                                 <div>
-                                    <Text className="uppercase tracking-[4px] text-[10px] !text-white block mb-2 font-bold">Total Balance</Text>
-                                    <div className="flex items-center gap-4">
-                                        <Title level={1} className="!text-white !m-0 font-medium tracking-tight text-4xl md:text-5xl">
+                                    <Text className="uppercase tracking-[2px] md:tracking-[4px] text-[9px] md:text-[10px] !text-white block mb-2 font-bold">Total Balance</Text>
+                                    <div className="flex items-center gap-3 md:gap-4">
+                                        <Title level={1} className="!text-white !m-0 font-medium tracking-tight text-3xl md:text-5xl break-all">
                                             {showBalance ? `Rs. ${Number(currentBalance).toLocaleString()}` : "••••••••"}
                                         </Title>
-                                        <Button type="text" icon={showBalance ? <EyeInvisibleOutlined /> : <EyeOutlined />} className="text-white/50 hover:text-white" onClick={(e) => { e.stopPropagation(); setShowBalance(!showBalance); }} />
+                                        <Button type="text" icon={showBalance ? <EyeInvisibleOutlined /> : <EyeOutlined />} className="text-white/50 hover:text-white flex items-center justify-center" onClick={(e) => { e.stopPropagation(); setShowBalance(!showBalance); }} />
                                     </div>
                                 </div>
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/1280px-Mastercard-logo.svg.png" alt="mc" className="h-10 opacity-80" />
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/1280px-Mastercard-logo.svg.png" alt="mc" className="h-6 md:h-10 opacity-80 object-contain" />
                             </div>
                             <div className="flex justify-between items-end">
                                 <div>
-                                    <Text className="!text-white font-mono tracking-widest text-lg md:text-xl block mb-1">
+                                    <Text className="!text-white font-mono tracking-wider md:tracking-widest text-base md:text-xl block mb-1">
                                         {userData?.accountNumber ? `**** **** **** ${userData.accountNumber.toString().slice(-4)}` : '**** **** **** 8824'}
                                     </Text>
-                                    <Text className="!text-white font-light tracking-widest uppercase text-[10px] opacity-80">
+                                    <Text className="!text-white font-light tracking-widest uppercase text-[9px] md:text-[10px] opacity-80 block truncate max-w-[180px] md:max-w-none">
                                         {userData?.fullName || "Premium Member"}
                                     </Text>
                                 </div>
                                 <Button
                                     icon={<SendOutlined rotate={-45} />}
-                                    className="bg-white text-black border-none rounded-2xl h-12 w-12 flex items-center justify-center shadow-xl hover:scale-110 transition-all"
+                                    className="bg-white text-black border-none rounded-xl md:rounded-2xl h-10 w-10 md:h-12 md:w-12 flex items-center justify-center shadow-xl hover:scale-110 transition-all flex-shrink-0"
                                     onClick={(e) => { e.stopPropagation(); navigate('/dashboard/transfer'); }}
                                 />
                             </div>
@@ -122,18 +112,23 @@ const Overview = () => {
                 </Col>
 
                 <Col xs={24} lg={8}>
-                    <Card className="h-full rounded-[40px] border-none shadow-xl bg-white flex items-center" hoverable>
-                        <div className="space-y-8 w-full p-2">
+                    {/* Fixed: bodyStyle ko styles={{ body: { ... } }} se replace kiya hai */}
+                    <Card 
+                        className="rounded-[24px] md:rounded-[40px] border-none shadow-xl bg-white w-full" 
+                        styles={{ body: { padding: '24px' } }} 
+                        hoverable
+                    >
+                        <div className="space-y-4 md:space-y-8 w-full">
                             <div className="space-y-1">
-                                <Text className="text-slate-400 text-[10px] uppercase font-black tracking-[2px] block mb-2">Account Holder</Text>
-                                <Title level={3} className="!m-0 !font-bold tracking-tight text-slate-800 uppercase text-lg">
+                                <Text className="text-slate-400 text-[9px] md:text-[10px] uppercase font-black tracking-[2px] block mb-1">Account Holder</Text>
+                                <Title level={3} className="!m-0 !font-bold tracking-tight text-slate-800 uppercase text-base md:text-lg truncate">
                                     {userData?.fullName || "Active Member"}
                                 </Title>
-                                <Tag color="blue" className="rounded-full border-none text-[9px] font-bold mt-2">Verified Account</Tag>
+                                <Tag color="blue" className="rounded-full border-none text-[9px] font-bold mt-1 inline-block">Verified Account</Tag>
                             </div>
                             <div className="space-y-1">
-                                <Text className="text-slate-400 text-[10px] uppercase font-black tracking-[2px] block mb-2">Account Number</Text>
-                                <Text className="text-slate-800 font-mono text-base tracking-[2px] font-bold">
+                                <Text className="text-slate-400 text-[9px] md:text-[10px] uppercase font-black tracking-[2px] block mb-1">Account Number</Text>
+                                <Text className="text-slate-800 font-mono text-sm md:text-base tracking-[1px] md:tracking-[2px] font-bold block break-all">
                                     {userData?.accountNumber ? `PK ${userData.accountNumber}` : 'PK 8824 9921 0012'}
                                 </Text>
                             </div>
@@ -143,7 +138,7 @@ const Overview = () => {
             </Row>
 
             {/* SECTION 2: FAST ACCESS */}
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 md:gap-4">
                 {[
                     { icon: <PlusCircleOutlined />, label: "Add Money", color: "text-orange-600", action: "deposit" },
                     { icon: <SendOutlined />, label: "Send", color: "text-blue-500", path: "/dashboard/transfer" },
@@ -157,71 +152,74 @@ const Overview = () => {
                             else if (item.action === "deposit") setIsDepositOpen(true);
                             else navigate(item.path);
                         }}
-                        className="bg-white p-6 rounded-[32px] flex flex-col items-center justify-center gap-3 cursor-pointer transition-all hover:shadow-xl hover:-translate-y-1 border border-slate-50 group"
+                        className={`bg-white p-4 md:p-6 rounded-[20px] md:rounded-[32px] flex flex-col items-center justify-center gap-2 md:gap-3 cursor-pointer transition-all hover:shadow-xl hover:-translate-y-1 border border-slate-50 group ${i === 4 ? 'col-span-2 sm:col-span-1' : ''}`}
                     >
-                        <div className={`${item.color} text-2xl transition-transform group-hover:scale-110`}>
+                        <div className={`${item.color} text-xl md:text-2xl transition-transform group-hover:scale-110`}>
                             {item.icon}
                         </div>
-                        <span className="text-slate-600 font-black text-[10px] uppercase tracking-[2px]">{item.label}</span>
+                        <span className="text-slate-600 font-black text-[9px] md:text-[10px] uppercase tracking-[1px] md:tracking-[2px] text-center">{item.label}</span>
                     </div>
                 ))}
             </div>
 
             {/* SECTION 3: REFINED INSIGHTS */}
             <div>
-                <div className="flex justify-between items-center mb-6 px-2">
-                    <Title level={4} className="!m-0 !font-bold">Account Insights</Title>
-                    <Button type="link" className="text-blue-600 font-bold" onClick={() => navigate('/dashboard/history')}>View Reports</Button>
+                <div className="flex justify-between items-center mb-4 md:mb-6 px-1">
+                    <Title level={4} className="!m-0 !font-bold !text-base md:!text-lg">Account Insights</Title>
+                    <Button type="link" className="text-blue-600 font-bold p-0 h-auto" onClick={() => navigate('/dashboard/history')}>View Reports</Button>
                 </div>
-                <Row gutter={[24, 24]}>
+                <Row gutter={[16, 16]}>
                     <Col xs={24} md={8}>
-                        <Card className="rounded-[32px] border-none shadow-sm hover:shadow-md transition-all">
-                            <div className="flex flex-col gap-4">
+                        {/* Fixed: bodyStyle ko styles={{ body: { ... } }} se replace kiya hai */}
+                        <Card className="rounded-[24px] md:rounded-[32px] border-none shadow-sm hover:shadow-md transition-all" styles={{ body: { padding: '20px' } }}>
+                            <div className="flex flex-col gap-3 md:gap-4">
                                 <div className="flex justify-between items-center">
-                                    <div className="p-3 bg-red-50 text-red-500 rounded-xl"><ArrowUpOutlined /></div>
-                                    <Tag color="red" className="rounded-full border-none text-[10px] font-bold uppercase">Expense</Tag>
+                                    <div className="p-2.5 bg-red-50 text-red-500 rounded-xl flex items-center justify-center"><ArrowUpOutlined /></div>
+                                    <Tag color="red" className="rounded-full border-none text-[9px] md:text-[10px] font-bold uppercase m-0">Expense</Tag>
                                 </div>
                                 <div>
                                     <Text className="text-slate-400 text-xs block font-medium">Debit</Text>
-                                    <Title level={3} className="!m-0 !font-bold">Rs. {monthlySpend.toLocaleString()}</Title>
+                                    <Title level={3} className="!m-0 !font-bold !text-lg md:!text-xl">Rs. {monthlySpend.toLocaleString()}</Title>
                                 </div>
                                 <Progress percent={spendProgress} showInfo={false} strokeColor="#ff4d4f" size={{ height: 6 }} />
-                                <Text className="text-[10px] text-slate-400 font-bold uppercase">{spendProgress}% of total cash flow</Text>
+                                <Text className="text-[9px] md:text-[10px] text-slate-400 font-bold uppercase">{spendProgress}% of total cash flow</Text>
                             </div>
                         </Card>
                     </Col>
 
                     <Col xs={24} md={8}>
-                        <Card className="rounded-[32px] border-none shadow-sm hover:shadow-md transition-all">
-                            <div className="flex flex-col gap-4">
+                        {/* Fixed: bodyStyle ko styles={{ body: { ... } }} se replace kiya hai */}
+                        <Card className="rounded-[24px] md:rounded-[32px] border-none shadow-sm hover:shadow-md transition-all" styles={{ body: { padding: '20px' } }}>
+                            <div className="flex flex-col gap-3 md:gap-4">
                                 <div className="flex justify-between items-center">
-                                    <div className="p-3 bg-emerald-50 text-emerald-500 rounded-xl"><ThunderboltOutlined /></div>
-                                    <Tag color="green" className="rounded-full border-none text-[10px] font-bold uppercase">Savings</Tag>
+                                    <div className="p-2.5 bg-emerald-50 text-emerald-500 rounded-xl flex items-center justify-center"><ThunderboltOutlined /></div>
+                                    <Tag color="green" className="rounded-full border-none text-[9px] md:text-[10px] font-bold uppercase m-0">Savings</Tag>
                                 </div>
                                 <div>
                                     <Text className="text-slate-400 text-xs block font-medium">Available Credit</Text>
-                                    <Title level={3} className="!m-0 !font-bold">Rs. {savingsAmount.toLocaleString()}</Title>
+                                    <Title level={3} className="!m-0 !font-bold !text-lg md:!text-xl">Rs. {savingsAmount.toLocaleString()}</Title>
                                 </div>
                                 <Progress percent={25} showInfo={false} strokeColor="#10b981" size={{ height: 6 }} />
-                                <Text className="text-[10px] text-slate-400 font-bold uppercase">25% Locked for Security</Text>
+                                <Text className="text-[9px] md:text-[10px] text-slate-400 font-bold uppercase">25% Locked for Security</Text>
                             </div>
                         </Card>
                     </Col>
 
                     <Col xs={24} md={8}>
-                        <Card className="rounded-[32px] border-none shadow-lg text-white group" style={{ background: '#0a39a7ff' }}>
-                            <div className="flex flex-col gap-4">
+                        {/* Fixed: bodyStyle ko styles={{ body: { ... } }} se replace kiya hai */}
+                        <Card className="rounded-[24px] md:rounded-[32px] border-none shadow-lg text-white group" style={{ background: '#0a39a7ff' }} styles={{ body: { padding: '20px' } }}>
+                            <div className="flex flex-col gap-3 md:gap-4">
                                 <div className="flex justify-between items-center">
-                                    <div className="p-3 bg-white/10 text-blue-400 rounded-xl"><SafetyCertificateOutlined /></div>
-                                    <div className="flex gap-1">
-                                        <div className="w-1.5 h-4 bg-blue-500 rounded-full animate-pulse" />
-                                        <div className="w-1.5 h-4 bg-blue-500 rounded-full" />
-                                        <div className={`w-1.5 h-4 rounded-full ${isSecurityHigh ? 'bg-blue-500' : 'bg-slate-700'}`} />
+                                    <div className="p-2.5 bg-white/10 text-blue-400 rounded-xl flex items-center justify-center"><SafetyCertificateOutlined /></div>
+                                    <div className="flex gap-1 items-center">
+                                        <div className="w-1.5 h-3.5 bg-blue-500 rounded-full animate-pulse" />
+                                        <div className="w-1.5 h-3.5 bg-blue-500 rounded-full" />
+                                        <div className={`w-1.5 h-3.5 rounded-full ${isSecurityHigh ? 'bg-blue-500' : 'bg-slate-700'}`} />
                                     </div>
                                 </div>
                                 <div>
-                                    <Text className="text-white/50 text-[10px] uppercase font-bold tracking-widest block">Security Level</Text>
-                                    <Title level={3} className="!m-0 !text-white !font-bold tracking-tight">Excellent</Title>
+                                    <Text className="text-white/50 text-[9px] md:text-[10px] uppercase font-bold tracking-widest block">Security Level</Text>
+                                    <Title level={3} className="!m-0 !text-white !font-bold !text-lg md:!text-xl">Excellent</Title>
                                 </div>
                                 <Text className="text-blue-400 text-[9px] font-black uppercase tracking-widest">2FA & Encryption Active</Text>
                             </div>
@@ -232,17 +230,17 @@ const Overview = () => {
 
             {/* WALLET MODAL */}
             <Modal
-                title={<span className="text-lg font-black uppercase tracking-widest text-slate-800">Wallet Summary</span>}
+                title={<span className="text-base md:text-lg font-black uppercase tracking-widest text-slate-800">Wallet Summary</span>}
                 open={isWalletOpen}
                 onCancel={() => setIsWalletOpen(false)}
-                footer={null} centered width={400} className="premium-modal"
+                footer={null} centered width={380} className="premium-modal"
             >
-                <div className="space-y-6 py-4 text-center">
-                    <div className="bg-orange-50 p-8 rounded-[30px] border border-orange-100">
-                        <Text className="text-orange-400 text-[10px] uppercase font-black tracking-widest block mb-2">Total Wallet Balance</Text>
-                        <Title level={2} className="!m-0 !text-orange-600 !font-bold">Rs. {Number(currentBalance).toLocaleString()}</Title>
+                <div className="space-y-4 md:space-y-6 py-2 md:py-4 text-center">
+                    <div className="bg-orange-50 p-6 md:p-8 rounded-[20px] md:rounded-[30px] border border-orange-100">
+                        <Text className="text-orange-400 text-[9px] md:text-[10px] uppercase font-black tracking-widest block mb-2">Total Wallet Balance</Text>
+                        <Title level={2} className="!m-0 !text-orange-600 !font-bold !text-2xl md:!text-3xl">Rs. {Number(currentBalance).toLocaleString()}</Title>
                     </div>
-                    <Button block size="large" className="rounded-2xl h-14 bg-orange-500 text-white border-none font-bold hover:!bg-orange-600 shadow-lg shadow-orange-100 uppercase text-[10px] tracking-widest" onClick={() => { setIsWalletOpen(false); setIsDepositOpen(true); }}>
+                    <Button block size="large" className="rounded-xl md:rounded-2xl h-12 md:h-14 bg-orange-500 text-white border-none font-bold hover:!bg-orange-600 shadow-lg shadow-orange-100 uppercase text-[10px] tracking-widest" onClick={() => { setIsWalletOpen(false); setIsDepositOpen(true); }}>
                         Add Money to Wallet
                     </Button>
                 </div>
@@ -250,16 +248,16 @@ const Overview = () => {
 
             {/* DEPOSIT MODAL */}
             <Modal
-                title={<span className="text-xl font-black uppercase tracking-tight text-slate-800">Add Money <span className="text-blue-600">to Account</span></span>}
+                title={<span className="text-lg md:text-xl font-black uppercase tracking-tight text-slate-800">Add Money <span className="text-blue-600">to Account</span></span>}
                 open={isDepositOpen}
                 onCancel={() => setIsDepositOpen(false)}
-                footer={null} centered borderRadius={30} className="premium-modal"
+                footer={null} centered className="premium-modal" width={380}
             >
-                <div className="py-6 space-y-6">
-                    <div className="bg-slate-50 p-6 rounded-3xl border border-dashed border-slate-200">
-                        <Text className="text-[10px] uppercase font-black text-slate-400 block mb-3 ml-1 tracking-widest">Enter Amount (Min Rs. 1,000)</Text>
+                <div className="py-4 space-y-4 md:space-y-6">
+                    <div className="bg-slate-50 p-4 md:p-6 rounded-2xl md:rounded-3xl border border-dashed border-slate-200">
+                        <Text className="text-[9px] md:text-[10px] uppercase font-black text-slate-400 block mb-2 ml-1 tracking-widest">Enter Amount (Min Rs. 1,000)</Text>
                         <InputNumber
-                            className="w-full h-14 rounded-2xl flex items-center text-xl font-bold border-none bg-white shadow-sm"
+                            className="w-full h-12 md:h-14 rounded-xl md:rounded-2xl flex items-center text-lg font-bold border-none bg-white shadow-sm"
                             value={depositAmount}
                             onChange={(val) => setDepositAmount(val)}
                             min={1000}
@@ -267,10 +265,10 @@ const Overview = () => {
                             parser={value => value.replace(/Rs\.\s?|(,*)/g, '')}
                         />
                     </div>
-                    <Button block type="primary" size="large" loading={loading} onClick={handleDeposit} className="h-16 rounded-[20px] bg-slate-900 border-none text-base font-black uppercase tracking-widest shadow-xl shadow-slate-200 hover:scale-[1.02] transition-all">
+                    <Button block type="primary" size="large" loading={loading} onClick={handleDeposit} className="h-12 md:h-16 rounded-xl md:rounded-[20px] bg-slate-900 border-none text-sm md:text-base font-black uppercase tracking-widest shadow-xl shadow-slate-200 hover:scale-[1.02] transition-all">
                         Confirm Deposit
                     </Button>
-                    <Text className="text-center block text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+                    <Text className="text-center block text-[9px] md:text-[10px] text-slate-400 font-bold uppercase tracking-widest">
                         Money will be added instantly to your wallet
                     </Text>
                 </div>
